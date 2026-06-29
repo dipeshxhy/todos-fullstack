@@ -1,6 +1,6 @@
 import { HttpStatusCodes } from "./constants.js";
 
-export class ApiError extends Error {
+export className ApiError extends Error {
   constructor(statusCode, message) {
     super(message);
     this.statusCode = statusCode;

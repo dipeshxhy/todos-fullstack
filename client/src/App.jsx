@@ -1,9 +1,9 @@
 import { Route, Routes } from 'react-router';
-import Landing from './pages/Landing';
-import Register from './pages/Register';
-import Login from './pages/Login';
-import TodoList from './pages/TodoList';
 import Navbar from './components/Navbar';
+import Landing from './pages/Landing';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import TodoList from './pages/TodoList';
 
 const App = () => {
   return (

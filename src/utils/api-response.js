@@ -1,6 +1,6 @@
 import { HttpStatusCodes } from "./constants.js";
 
-export class ApiResponse {
+export className ApiResponse {
   constructor(statusCode, data, message = "success") {
     this.statusCode = statusCode;
     this.data = data;

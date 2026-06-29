@@ -2,7 +2,7 @@ import Hero from '../components/Hero';
 
 const Landing = () => {
   return (
-    <div className="">
+    <div classNameName="">
       <Hero />
     </div>
   );
