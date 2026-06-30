@@ -1,6 +1,54 @@
-import { Link } from 'react-router';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router';
+import { toast } from 'react-toastify';
+import { register } from '../services/authService';
 
 const Register = () => {
+  const [values, setValues] = useState({
+    firstName: '',
+    lastName: '',
+    username: '',
+    email: '',
+    password: '',
+  });
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
+
+  const handleChange = (name) => (e) => {
+    setValues({ ...values, [name]: e.target.value });
+  };
+  const handleSubmit = async (e) => {
+    const { firstName, lastName, username, email, password } = values;
+    e.preventDefault();
+    if (!firstName || !lastName || !username || !email || !password) {
+      toast('Please fill in all fields.', { type: 'info' });
+      setError('Please fill in all fields.');
+      return;
+    }
+    try {
+      setLoading(true);
+      const data = {
+        firstName,
+        lastName,
+        username,
+        email,
+        password,
+      };
+      const res = await register(data);
+      toast(res.message || 'Registration successful!', { type: 'success' });
+
+      setError(null);
+      navigate('/login');
+    } catch (error) {
+      console.error('Registration error:', error);
+      toast(error.message || 'Failed to register.', { type: 'error' });
+      setError(error.message || 'An error occurred during registration.');
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div>
       <div className="min-h-screen bg-stone-200 relative lg:py-20">
@@ -25,7 +73,7 @@ const Register = () => {
                 <p className="w-full text-4xl font-medium text-center leading-snug  text-neutral sm:text-4xl">
                   Sign up for your account
                 </p>
-                <form className="w-full text-black ">
+                <form className="w-full text-black " onSubmit={handleSubmit}>
                   <div className="w-full mt-6 mr-0 mb-0 ml-0 relative space-y-8">
                     <div className="relative flex gap-4">
                       <div>
@@ -36,6 +84,8 @@ const Register = () => {
                           FirstName
                         </label>
                         <input
+                          value={values.firstName}
+                          onChange={handleChange('firstName')}
                           id="firstName"
                           placeholder="John"
                           type="text"
@@ -52,6 +102,8 @@ const Register = () => {
                           LastName
                         </label>
                         <input
+                          value={values.lastName}
+                          onChange={handleChange('lastName')}
                           id="lastName"
                           placeholder="Doe"
                           type="text"
@@ -74,29 +126,41 @@ const Register = () => {
                         id="username"
                         placeholder="johndoe"
                         type="text"
+                        value={values.username}
+                        onChange={handleChange('username')}
                         className="border placeholder-gray-400  focus:outline-none
                     focus:border-black w-full pt-4 pr-4 pb-4 pl-4 mt-2 mr-0 mb-0 ml-0 text-base block bg-white
                     border-gray-300 rounded-md text-black"
                       />
                     </div>
                     <div className="relative">
-                      <label htmlFor='email' className="bg-white pt-0 pr-2 pb-0 pl-2 -mt-3 mr-0 mb-0 ml-2 font-medium text-gray-600 absolute">
+                      <label
+                        htmlFor="email"
+                        className="bg-white pt-0 pr-2 pb-0 pl-2 -mt-3 mr-0 mb-0 ml-2 font-medium text-gray-600 absolute"
+                      >
                         Email
                       </label>
                       <input
                         placeholder="123@ex.com"
                         type="text"
                         id="email"
+                        value={values.email}
+                        onChange={handleChange('email')}
                         className="border placeholder-gray-400  focus:outline-none
                     focus:border-black w-full pt-4 pr-4 pb-4 pl-4 mt-2 mr-0 mb-0 ml-0 text-base block bg-white
                     border-gray-300 rounded-md text-black"
                       />
                     </div>
                     <div className="relative">
-                      <label htmlFor='password' className="bg-white pt-0 pr-2 pb-0 pl-2 -mt-3 mr-0 mb-0 ml-2 font-medium text-gray-600 absolute">
+                      <label
+                        htmlFor="password"
+                        className="bg-white pt-0 pr-2 pb-0 pl-2 -mt-3 mr-0 mb-0 ml-2 font-medium text-gray-600 absolute"
+                      >
                         Password
                       </label>
                       <input
+                        value={values.password}
+                        onChange={handleChange('password')}
                         placeholder="Password"
                         type="password"
                         id="password"
@@ -104,7 +168,7 @@ const Register = () => {
                     focus:border-black w-full pt-4 pr-4 pb-4 pl-4 mt-2 mr-0 mb-0 ml-0 text-base block bg-white
                     border-gray-300 rounded-md text-black"
                       />
-                      </div>
+                    </div>
                     <div className="relative">
                       <button className="btn btn-success w-full py-7 text-xl">Submit</button>
                     </div>

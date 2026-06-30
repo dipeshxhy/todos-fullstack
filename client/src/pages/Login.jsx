@@ -1,6 +1,47 @@
-import { Link } from 'react-router';
+import { useContext, useState } from 'react';
+import { Link, useNavigate } from 'react-router';
+import { login } from '../services/authService';
+import { toast } from 'react-toastify';
+import { useLocalStorage } from '../hooks/useLocalStorage';
+import { authContext } from '../context/AuthContext';
 
 const Login = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const { handleLogin, handleLogout } = useContext(authContext);
+
+  const navigate = useNavigate();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!email || !password) {
+      toast('Please fill in all fields.', { type: 'info' });
+      setError('Please fill in all fields.');
+      return;
+    }
+    try {
+      setLoading(true);
+      const data = {
+        email,
+        password,
+      };
+      const res = await login(data);
+      console.log(res);
+
+      toast(res.message || 'Login successful!', { type: 'success' });
+      handleLogin(res.data);
+
+      setError(null);
+      navigate('/todos');
+    } catch (error) {
+      console.error('Login error:', error);
+      toast(error.message || 'An error occurred during login.', { type: 'error' });
+      setError(error.message || 'An error occurred during login.');
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div>
       <div className="min-h-screen bg-stone-200 relative lg:py-20">
@@ -25,7 +66,7 @@ const Login = () => {
                 <p className="w-full text-4xl font-medium text-center leading-snug  text-neutral sm:text-4xl">
                   Sign in to your account
                 </p>
-                <form className="w-full ">
+                <form className="w-full " onSubmit={handleSubmit}>
                   <div className="w-full mt-6 mr-0 mb-0 ml-0 relative space-y-8">
                     <div className="relative">
                       <p className="bg-white pt-0 pr-2 pb-0 pl-2 -mt-3 mr-0 mb-0 ml-2 font-medium text-gray-600 absolute">
@@ -37,6 +78,8 @@ const Login = () => {
                         className="border placeholder-gray-400  focus:outline-none
                     focus:border-black w-full pt-4 pr-4 pb-4 pl-4 mt-2 mr-0 mb-0 ml-0 text-base block bg-white
                     border-gray-300 rounded-md text-black"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                       />
                     </div>
                     <div className="relative">
@@ -52,10 +95,17 @@ const Login = () => {
                         className="border placeholder-gray-400 focus:outline-none
                     focus:border-black w-full pt-4 pr-4 pb-4 pl-4 mt-2 mr-0 mb-0 ml-0 text-base block bg-white
                     border-gray-300 rounded-md text-black"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
                       />
                     </div>
                     <div className="relative">
-                      <button className="btn btn-success w-full py-7 text-xl">Submit</button>
+                      <button
+                        className="btn btn-success w-full py-7 text-xl
+                       "
+                      >
+                        Submit
+                      </button>
                     </div>
                     <p className="text-black">
                       Don't have an account?{' '}

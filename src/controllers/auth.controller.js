@@ -44,4 +44,31 @@ const login = async (req, res) => {
   );
 };
 
-export { login, register };
+const logout = async (req, res) => {
+  res.clearCookie('jwt', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+  });
+  ApiResponse.success(res, null, 'User logged out successfully');
+};
+
+const getCurrentUser = async (req, res) => {
+  const user = req.user;
+  if (!user) {
+    throw ApiError.unAuthorized('User not authenticated');
+  }
+  ApiResponse.success(
+    res,
+    {
+      id: user._id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      username: user.username,
+      email: user.email,
+    },
+    'profile fetched successfully',
+  );
+};
+
+export { login, logout, register, getCurrentUser };

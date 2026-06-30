@@ -1,18 +1,53 @@
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express from 'express';
+import morgan from 'morgan';
+
 import { errorHandler } from './middlewares/error-handler.js';
-import authRouter from './routes/auth.route.js';
 import { ApiError } from './utils/api-error.js';
-import cookieParser from 'cookie-parser';
+
+import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
+import authRouter from './routes/auth.route.js';
+import todoRouter from './routes/todo.route.js';
 
 const app = express();
-app.use(cors());
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
+
+app.set('trust proxy', 1);
+
+// helmet
+app.use(helmet());
+// express rate limit
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  limit: 100,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message: 'Too many requests. Please try again after 15 minutes.',
+  },
+});
+
+app.use(limiter);
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+  }),
+);
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // apis
 app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/todos', todoRouter);
 
 app.all('/*splat', (req, res) => {
   throw ApiError.notFound(`Can't find ${req.originalUrl} on this server!`);
