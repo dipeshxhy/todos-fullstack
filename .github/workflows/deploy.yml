@@ -1,6 +1,13 @@
+- name: Setup SSH
+  run: |
+    mkdir -p ~/.ssh
+    echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+    chmod 600 ~/.ssh/id_rsa
+    ssh-keyscan -H ${{ vars.SERVER_HOST }} >> ~/.ssh/known_hosts
+
 - name: Deploy to server
   run: |
-    ssh -o StrictHostKeyChecking=no ${{ vars.SERVER_USER }}@${{ vars.SERVER_HOST }} << 'EOF'
+    ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ vars.SERVER_USER }}@${{ vars.SERVER_HOST }} << 'EOF'
       cd ${{ vars.SERVER_PATH }}
 
       git pull origin main
@@ -12,7 +19,7 @@
       pnpm build
       cd ..
 
-      pm2 reload todo-app
+      pm2 reload todo-app || pm2 start src/index.js --name todo-app
 
       echo "Deployment done"
     EOF
