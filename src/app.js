@@ -38,32 +38,39 @@ const limiter = rateLimit({
 });
 
 app.use(limiter);
-app.use(
-  cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:8000',
-    credentials: true,
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
-  }),
-);
+if (process.env.NODE_ENV === 'development') {
+  app.use(
+    cors({
+      origin: process.env.CLIENT_URL,
+      credentials: true,
+      allowedHeaders: ['Content-Type', 'Authorization'],
+      methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+    }),
+  );
+}
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '..', 'client', 'dist')));
 app.use(express.urlencoded({ extended: true }));
 
-// apis
+// API Routes
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/todos', todoRouter);
 
-const distPath = path.join(__dirname, '..', 'client', 'dist');
-
-app.get('/{*splat}', (req, res) => {
-  res.sendFile(path.join(distPath, 'index.html'));
-});
-app.all('/api/*splat', (req, res) => {
+// Unknown API routes
+app.all('/api/{*splat}', (req, res) => {
   throw ApiError.notFound(`Can't find ${req.originalUrl} on this server!`);
 });
 
+// Static files
+app.use(express.static(distPath));
+
+// React routes
+app.get('/{*splat}', (req, res) => {
+  res.sendFile(path.join(distPath, 'index.html'));
+});
+
+// Error handler
 app.use(errorHandler);
 
 export default app;
