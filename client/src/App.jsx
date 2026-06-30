@@ -8,6 +8,7 @@ import ProtectedRoute from './pages/ProtectedRoute';
 import Register from './pages/Register';
 import TodoList from './pages/TodoList';
 import PublicRoute from './pages/PublicRoute';
+import Profile from './pages/Profile';
 
 const App = () => {
   const { user } = useContext(authContext);
@@ -25,6 +26,7 @@ const App = () => {
 
           <Route element={<ProtectedRoute user={user} />}>
             <Route path="/todos" element={<TodoList />} />
+            <Route path="/profile" element={<Profile />} />
           </Route>
         </Routes>
       </div>

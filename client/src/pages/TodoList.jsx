@@ -23,7 +23,6 @@ const TodoList = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(value);
     try {
       const data = {
         title: value.title,
@@ -82,7 +81,7 @@ const TodoList = () => {
 
   const renderTodos = filteredTodos.map((todo) => <TodoItem key={todo._id} todo={todo} />);
   return (
-    <div className="shadow-xl">
+    <div className="">
       <div className="flex justify-between mt-10 items-center bg-neutral shadow-lg p-4 text-neutral-content">
         <h2 className="text-3xl font-bold ">Your Tasks</h2>
         <input
