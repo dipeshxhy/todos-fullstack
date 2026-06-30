@@ -27,7 +27,7 @@ const login = async (req, res) => {
   res.cookie('jwt', token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
+    sameSite: 'lax',
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
   });
   ApiResponse.success(
@@ -38,7 +38,6 @@ const login = async (req, res) => {
       lastName: user.lastName,
       username: user.username,
       email: user.email,
-      token,
     },
     'User logged in successfully',
   );

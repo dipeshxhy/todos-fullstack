@@ -49,9 +49,8 @@ if (process.env.NODE_ENV === 'development') {
   );
 }
 app.use(cookieParser());
-app.use(express.json());
-app.use(express.static(path.join(__dirname, '..', 'client', 'dist')));
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 // API Routes
 app.use('/api/v1/auth', authRouter);
@@ -61,6 +60,7 @@ app.use('/api/v1/todos', todoRouter);
 app.all('/api/{*splat}', (req, res) => {
   throw ApiError.notFound(`Can't find ${req.originalUrl} on this server!`);
 });
+const distPath = path.join(__dirname, '..', 'client', 'dist');
 
 // Static files
 app.use(express.static(distPath));
