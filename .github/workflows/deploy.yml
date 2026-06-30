@@ -1,44 +1,18 @@
-name: Deploy to DigitalOcean
+- name: Deploy to server
+  run: |
+    ssh -o StrictHostKeyChecking=no ${{ vars.SERVER_USER }}@${{ vars.SERVER_HOST }} << 'EOF'
+      cd ${{ vars.SERVER_PATH }}
 
-on:
-  push:
-    branches:
-      - main
+      git pull origin main
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
+      pnpm install
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      cd client
+      pnpm install
+      pnpm build
+      cd ..
 
-      - name: Setup SSH key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ vars.SERVER_HOST }} >> ~/.ssh/known_hosts
+      pm2 reload todo-app
 
-      - name: Deploy to server
-        run: |
-          ssh ${{ vars.SERVER_USER }}@${{ vars.SERVER_HOST }} << 'EOF'
-            cd ${{ vars.SERVER_PATH }}
-
-            echo "Pulling latest code..."
-            git pull origin main
-
-            echo "Installing backend dependencies..."
-            pnpm install
-
-            echo "Building frontend..."
-            cd client
-            pnpm install
-            pnpm build
-            cd ..
-
-            echo "Restarting PM2..."
-            pm2 reload todo-app
-
-            echo "Deployment done!"
-          EOF
+      echo "Deployment done"
+    EOF
